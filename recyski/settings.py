@@ -60,7 +60,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'recyski.urls'
 
 CORS_ORIGIN_WHITELIST = [
-    'https://localhost:3000',
+    'https://localhost:3000','https://young-wave-31304.herokuapp.com/','http://young-wave-31304.herokuapp.com/','https://young-wave-31304.herokuapp.com','http://young-wave-31304.herokuapp.com'
 ]
 AUTH_USER_MODEL='account.Account'
 AUTHENTICATION_BACKENDS=(
