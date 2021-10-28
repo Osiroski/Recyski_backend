@@ -1,0 +1,1 @@
+web: gunicorn recyski.wsgi --log-file -
