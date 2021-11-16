@@ -1,19 +1,15 @@
 from django.http.response import Http404
-from django.shortcuts import render
-from django.views import generic
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
 
-from .backends import CaseInsensitiveModelBackend
-
 # Create your views here.
-from .models import Account, History, Profile
-from .serializers import AccountSerializer, HistorySerializer, LoginSerializer, ProfileSerializer, RegisterSerializer
+from .models import Account, Profile
+from .serializers import AccountSerializer, LoginSerializer, ProfileSerializer, RegisterSerializer
 from rest_framework import generics
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.authtoken.views import ObtainAuthToken
+
 from rest_framework.authtoken.models import Token
 
 
@@ -46,22 +42,29 @@ class AccountDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AccountSerializer
 
 
-class ProfileDetail(generics.RetrieveUpdateAPIView):
+class ProfileDetail(APIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-
+    
     def get_object(self, pk):
         try:
-            return Profile.objects.get(user=pk)
+            return Profile.objects.get(pk=pk)
         except Profile.DoesNotExist:
             raise Http404
-
+    #GET METHOD
     def get(self, request, pk):
         profile = self.get_object(pk)
         serializer = self.serializer_class(profile, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
+    #UPDATE METHOD
+    def put(self, request,pk, **kwargs):
+        partial = kwargs.pop('partial', False)
+        profile = self.get_object(pk)
+        serializer = self.serializer_class(profile, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+        
 class LoginToken(APIView):
     queryset = Account.objects.all()
     serializer_class = LoginSerializer
@@ -104,23 +107,3 @@ class Logout(APIView):
                         status=status.HTTP_200_OK)
 
 
-class HistoryList(generics.ListCreateAPIView):
-    queryset = History.objects.all()
-    serializer_class = HistorySerializer
-
-    def get_object(self, pk):
-        try:
-            return History.objects.get(user=pk)
-        except History.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        data = History.objects.filter(user=pk)
-        serializer = self.serializer_class(data, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def delete(self, request, pk, format=None):
-        history = self.get_object(pk)
-        history.delete()
-        return Response('Successfully Deleted',
-                        status=status.HTTP_204_NO_CONTENT)

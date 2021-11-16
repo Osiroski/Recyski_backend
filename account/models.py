@@ -10,6 +10,12 @@ from django.core.mail import EmailMessage, send_mail
 from .managers import MyAccountManager
 
 
+def get_profile_image_path(self,filename):
+    return f'profile_images/{self.pk}/{"profile_image.png"}'
+
+def get_default_profile_image():
+    return "profile_images/logo.png"
+
 # Create your models here.
 class Account(AbstractBaseUser):
     email = models.EmailField(verbose_name="email",max_length=60,unique=True)
@@ -29,23 +35,31 @@ class Account(AbstractBaseUser):
 
     def __str__(self) -> str:
         return self.username
-
     def has_perm(self,perm,obj=None):
         return self.is_admin
-
     def has_module_perms(self,app_label):
         return True
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    profile_image=models.ImageField(
+        max_length=255,
+        upload_to=get_profile_image_path ,
+        null=True, blank=True,
+        default=get_default_profile_image)
     bio = models.TextField(max_length=500, blank=True)
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phoneNumber=PhoneNumberField(null=True,blank=True)
     points=models.IntegerField(default=50)
     level = models.TextField(max_length=500, blank=True)
+
     def __str__(self) -> str:
         return self.user.username
+    def get_profile_image_filename(self):
+        return str(self.profile_image)[str(self.profile_image).index(f'profile_image/{self.pk}/'): ]
+    
+
 @receiver(post_save, sender=Account)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -77,12 +91,3 @@ def send_mail_on_create(sender, instance, created=False, **kwargs):
 
 
 
-class History(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    item = models.TextField(max_length=500, blank=True)
-    location = models.CharField(max_length=30, blank=True)
-    date = models.DateField(null=True, blank=True)
-    points=models.IntegerField(default=50)
-    units=models.IntegerField(default=0)
-    def __str__(self) -> str:
-        return self.user.username

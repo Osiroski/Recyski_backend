@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Account, History,Profile
+from .models import Account,Profile
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -22,7 +22,3 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = '__all__'
 
-class HistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = History
-        fields = '__all__'

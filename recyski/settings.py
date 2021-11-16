@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,11 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account',
+    'orders',
     'rest_framework',
     'rest_framework.authtoken',
     'coreapi',
     'drf_yasg', 
-    'corsheaders'
+    'corsheaders',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -59,10 +62,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'recyski.urls'
-
-CORS_ORIGIN_WHITELIST = [
-    'https://localhost:3000','https://young-wave-31304.herokuapp.com','http://young-wave-31304.herokuapp.com'
-]
+CORS_ALLOW_ALL_ORIGINS=True
+# CORS_ORIGIN_WHITELIST = [
+#     'https://localhost:3000']
 AUTH_USER_MODEL='account.Account'
 AUTHENTICATION_BACKENDS=(
     'django.contrib.auth.backends.AllowAllUsersModelBackend',
@@ -147,3 +149,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 import dj_database_url
 prod_db=dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(prod_db)
+
+MEDIA_ROOT=os.path.join(BASE_DIR,'media')
+MEDIA_URL='/media/'
